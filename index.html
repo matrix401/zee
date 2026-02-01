@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#0b0f14"/>
+<title>StreakForge</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--bg:#0b0f14;--card:#121824;--muted:#93a4b8;--text:#e7eef8;--line:#1e2a3d;--good:#2dd4bf;--bad:#fb7185;--warn:#fbbf24;--btn:#1b2433;--btn2:#263246;--shadow:0 10px 30px rgba(0,0,0,.35);--r:18px;--mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;--sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1200px 700px at 20% -10%,rgba(45,212,191,.13),transparent 60%),radial-gradient(900px 600px at 90% 0%,rgba(251,113,133,.10),transparent 55%),var(--bg);color:var(--text);font-family:var(--sans)}
+header{position:sticky;top:0;z-index:5;backdrop-filter:blur(10px);background:rgba(11,15,20,.72);border-bottom:1px solid rgba(30,42,61,.7)}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800}
+.logo{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,rgba(45,212,191,.95),rgba(59,130,246,.75));box-shadow:var(--shadow);display:grid;place-items:center;color:#061018;font-family:var(--mono);font-weight:900}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+.tab{padding:10px 12px;border-radius:999px;border:1px solid rgba(30,42,61,.9);background:rgba(18,24,36,.6);cursor:pointer;font-size:14px}
+.tab.active{background:rgba(45,212,191,.14);border-color:rgba(45,212,191,.55);color:#c9fff7}
+main{padding:18px 16px 26px}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:rgba(18,24,36,.82);border:1px solid rgba(30,42,61,.95);border-radius:22px;box-shadow:var(--shadow);padding:14px}
+h2{margin:0 0 10px 0;font-size:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.kpi{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:10px 12px;border:1px solid rgba(30,42,61,.9);border-radius:14px;background:rgba(11,15,20,.35)}
+.big{font-size:28px;font-weight:900}
+.small{color:var(--muted);font-size:13px}
+.btn{padding:10px 12px;border-radius:14px;border:1px solid rgba(30,42,61,.95);background:var(--btn);color:var(--text);cursor:pointer;font-weight:700}
+.btn:hover{background:var(--btn2)}
+.btn.good{border-color:rgba(45,212,191,.55);background:rgba(45,212,191,.10)}
+.btn.bad{border-color:rgba(251,113,133,.55);background:rgba(251,113,133,.10)}
+.btn.warn{border-color:rgba(251,191,36,.55);background:rgba(251,191,36,.10)}
+.pill{font-size:12px;color:var(--muted);border:1px solid rgba(30,42,61,.85);padding:6px 10px;border-radius:999px;background:rgba(11,15,20,.35)}
+.div{height:1px;background:rgba(30,42,61,.95);margin:12px 0}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+label{font-size:13px;color:var(--muted)}
+input,textarea{background:rgba(11,15,20,.45);border:1px solid rgba(30,42,61,.95);border-radius:14px;color:var(--text);padding:10px 12px;font-size:14px;outline:none}
+textarea{min-height:90px;resize:vertical}
+.check{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(11,15,20,.35);border:1px solid rgba(30,42,61,.95);margin-bottom:8px}
+.check .t{font-weight:700}.check .d{font-size:12px;color:var(--muted)}
+.toggle{width:46px;height:28px;border-radius:999px;border:1px solid rgba(30,42,61,.95);background:rgba(18,24,36,.9);position:relative;cursor:pointer;flex-shrink:0}
+.toggle:after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:rgba(147,164,184,.95);transition:all .18s ease}
+.toggle.on{border-color:rgba(45,212,191,.55);background:rgba(45,212,191,.12)}
+.toggle.on:after{left:21px;background:rgba(45,212,191,.95)}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid rgba(30,42,61,.9);background:rgba(11,15,20,.35);font-size:12px;margin:3px 6px 3px 0;cursor:pointer}
+.tag.good{border-color:rgba(45,212,191,.45);color:#c9fff7}
+.tag.bad{border-color:rgba(251,113,133,.45);color:#ffd1da}
+.tag.warn{border-color:rgba(251,191,36,.45);color:#fff1c2}
+.tag.sel{outline:2px solid rgba(191,232,255,.35)}
+.hidden{display:none}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(18,24,36,.92);border:1px solid rgba(30,42,61,.95);padding:10px 12px;border-radius:999px;box-shadow:var(--shadow);font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-2px)}
+.boxBad{border:1px solid rgba(251,113,133,.55);background:rgba(251,113,133,.08);padding:10px 12px;border-radius:16px}
+.boxGood{border:1px solid rgba(45,212,191,.55);background:rgba(45,212,191,.08);padding:10px 12px;border-radius:16px}
+.muted{color:var(--muted)}
+.mono{font-family:var(--mono)}
+footer{padding:18px 16px 30px;color:var(--muted);font-size:12px;text-align:center}
+a{color:#bfe8ff;text-decoration:none}a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap top">
+    <div class="brand"><div class="logo">SF</div><div><div>StreakForge</div><div class="muted" style="font-size:12px">streaks • reflections • patterns</div></div></div>
+    <nav>
+      <div class="tab active" data-tab="today">Today</div>
+      <div class="tab" data-tab="weekly">Weekly</div>
+      <div class="tab" data-tab="insights">Insights</div>
+      <div class="tab" data-tab="data">Data</div>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<section id="today">
+  <div class="grid">
+    <div class="card">
+      <h2>Today's Win (the streak)</h2>
+      <div class="row" style="justify-content:space-between">
+        <div class="kpi"><div class="big" id="streakNow">0</div><div><div class="small">current streak</div><div class="small">best: <span id="streakBest">0</span></div></div></div>
+        <div class="kpi"><div class="big" id="todayState">—</div><div><div class="small">today status</div><div class="small mono" id="todayDate">—</div></div></div>
+      </div>
+      <div class="div"></div>
+      <div class="boxGood">
+        <div style="font-weight:900;margin-bottom:6px;">One rule</div>
+        <div class="muted">Your streak counts only if you do <b>at least 1 Deep Work block</b> on your primary goal.</div>
+      </div>
+      <div style="height:10px"></div>
+      <div class="row">
+        <button class="btn good" id="winBtn">✅ I won today</button>
+        <button class="btn bad" id="loseBtn">❌ I lost today</button>
+        <button class="btn warn" id="undoBtn">↩ Undo</button>
+      </div>
+      <div class="div"></div>
+      <h2>Keystone checks (optional, but predictive)</h2>
+      <div id="keystones"></div>
+      <div class="div"></div>
+      <h2>Top 3 (tiny plan)</h2>
+      <div class="field"><label>Top 1 (primary)</label><input id="top1" placeholder="e.g., CAA growth deep work"/></div>
+      <div class="field"><label>Top 2</label><input id="top2" placeholder="e.g., ops + systems"/></div>
+      <div class="field"><label>Top 3</label><input id="top3" placeholder="e.g., 1 hr cancer research"/></div>
+      <div class="row"><button class="btn" id="saveTop3">Save</button><span class="pill">saved locally</span></div>
+      <div class="div"></div>
+      <h2>Trigger log (tap what showed up)</h2>
+      <div id="triggers"></div>
+      <div class="field"><label>1-line note</label><input id="note" placeholder="e.g., slept 3am → shorts → no deep work"/></div>
+      <button class="btn" id="saveNote">Save note</button>
+    </div>
+
+    <div class="card">
+      <h2>Pattern Engine (3 steps)</h2>
+      <div class="boxBad">
+        <div style="font-weight:900;margin-bottom:6px;">Pattern Recognition</div>
+        <div class="muted">Smallest domino that starts the collapse.</div>
+        <textarea id="pr" placeholder="Sleep late → morning breaks → junk/scroll → urge → no deep work"></textarea>
+      </div>
+      <div style="height:10px"></div>
+      <div class="boxGood">
+        <div style="font-weight:900;margin-bottom:6px;">Pattern Utilization</div>
+        <div class="muted">Guardrail to interrupt early.</div>
+        <textarea id="pu" placeholder="11:45pm phone off + charge outside + lights out"></textarea>
+      </div>
+      <div style="height:10px"></div>
+      <div class="card" style="padding:12px;background:rgba(11,15,20,.28)">
+        <div style="font-weight:900;margin-bottom:6px;">Pattern Implementation</div>
+        <div class="muted">Tomorrow's one action + time.</div>
+        <textarea id="pi" placeholder="7:30–8:30am deep work block (phone outside room)"></textarea>
+      </div>
+      <div style="height:10px"></div>
+      <button class="btn" id="save3p">Save 3P</button>
+      <div class="div"></div>
+      <h2>Quick stats</h2>
+      <div class="row">
+        <span class="pill">wins last 7d: <b id="w7">0</b></span>
+        <span class="pill">losses last 7d: <b id="l7">0</b></span>
+        <span class="pill">top trigger: <b id="topTrig">—</b></span>
+      </div>
+      <div class="div"></div>
+      <div class="muted">Add to Home Screen (Chrome → ⋮ → Add). Works offline.</div>
+    </div>
+  </div>
+</section>
+
+<section id="weekly" class="hidden">
+  <div class="grid">
+    <div class="card">
+      <h2>Create weekly reflection</h2>
+      <div class="field"><label>Week label</label><input id="wl" placeholder="e.g., Week 18 — Feb 2–Feb 8, 2026"/></div>
+      <div class="field"><label>Score (0–10)</label><input id="ws" type="number" min="0" max="10" step="1" placeholder="8"/></div>
+      <div class="field"><label>Wins</label><textarea id="ww" placeholder="What moved forward / shipped / learned"></textarea></div>
+      <div class="field"><label>Failures / enemies</label><textarea id="wf" placeholder="What killed you"></textarea></div>
+      <div class="field"><label>Triggers (tap)</label><div id="wtrigs"></div></div>
+      <div class="field"><label>Root equation</label><textarea id="wroot" placeholder="Discomfort + low clarity → escape → sleep late → no deep work"></textarea></div>
+      <div class="field"><label>Counter-rules</label><textarea id="wrules" placeholder="Phone off 11:45, no sugar after dinner, deep work before calls"></textarea></div>
+      <div class="field"><label>Top 5 goals (next week)</label><textarea id="wgoals" placeholder="1) ... 2) ... 3) ... 4) ... 5) ..."></textarea></div>
+      <button class="btn good" id="saveWeek">Save weekly reflection</button>
+    </div>
+    <div class="card">
+      <h2>Past weeks</h2>
+      <div class="muted">Tap a week to view. Load → edit using the form.</div>
+      <div style="height:10px"></div>
+      <div id="weekList"></div>
+      <div id="weekView" class="hidden" style="margin-top:12px"></div>
+    </div>
+  </div>
+</section>
+
+<section id="insights" class="hidden">
+  <div class="grid">
+    <div class="card">
+      <h2>30-day map</h2>
+      <div class="muted">Green=win, Pink=loss, Empty=no entry.</div>
+      <div style="height:10px" id="map30"></div>
+      <div class="div"></div>
+      <h2>Trigger frequency (last 30 entries)</h2>
+      <div id="freq"></div>
+    </div>
+    <div class="card">
+      <h2>Auto IF–THEN rules</h2>
+      <div class="muted">Generated from your loss-days triggers.</div>
+      <div style="height:10px"></div>
+      <div id="rules"></div>
+      <div class="div"></div>
+      <div class="muted"><b>Default domino:</b> sleep late → morning breaks → junk/scroll → urges. Track it daily and cut it early.</div>
+    </div>
+  </div>
+</section>
+
+<section id="data" class="hidden">
+  <div class="grid">
+    <div class="card">
+      <h2>Export / Import</h2>
+      <div class="muted">Stored only on-device (localStorage). Export for backup.</div>
+      <div class="div"></div>
+      <div class="row">
+        <button class="btn" id="export">Export JSON</button>
+        <label class="btn" for="import" style="cursor:pointer">Import JSON</label>
+        <input id="import" type="file" accept="application/json" style="display:none"/>
+      </div>
+      <div style="height:10px"></div>
+      <button class="btn bad" id="reset">Reset everything</button>
+      <div class="div"></div>
+      <h2>Deploy free</h2>
+      <ol class="muted">
+        <li>Upload these files to a GitHub repo.</li>
+        <li>Enable GitHub Pages (Settings → Pages).</li>
+        <li>Open on phone → Add to Home Screen.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>Raw store</h2>
+      <pre id="raw" style="white-space:pre-wrap;font-family:var(--mono);font-size:12px;color:#cfe6ff"></pre>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="wrap">No accounts. No tracking. Offline-first.</footer>
+<div class="toast" id="toast">Saved</div>
+
+<script>
+const STORE="streakforge_v1";
+const todayKey=()=>new Date().toISOString().slice(0,10);
+
+const TRIGS=[
+ {k:"p&m",t:"P&M / urges",kind:"bad"},
+ {k:"junk",t:"Junk / sugar",kind:"bad"},
+ {k:"sleep_late",t:"Slept late",kind:"bad"},
+ {k:"shorts",t:"Shorts / doomscroll",kind:"bad"},
+ {k:"fight",t:"Fight / tension",kind:"bad"},
+ {k:"jealousy",t:"Jealousy / self-doubt",kind:"bad"},
+ {k:"shallow",t:"Shallow work",kind:"bad"},
+ {k:"too_many_yes",t:"Said yes to too many",kind:"bad"},
+ {k:"travel",t:"Travel / disruption",kind:"warn"},
+ {k:"family",t:"Family duty / hospital",kind:"warn"},
+ {k:"clarity",t:"Low clarity",kind:"warn"},
+ {k:"deep_work",t:"Deep work done",kind:"good"},
+ {k:"exercise",t:"Exercise",kind:"good"},
+ {k:"sleep_ok",t:"Slept on time",kind:"good"},
+];
+
+const KEYSTONES=[
+ {k:"sleep12",title:"Sleep on time",desc:"In bed by 12:00am (domino stopper)"},
+ {k:"no_pm",title:"No P&M",desc:"Zero today"},
+ {k:"no_junk",title:"No junk / sugar",desc:"No outside junk / sugar after dinner"},
+ {k:"deepwork1",title:"1 Deep Work block",desc:"60 mins on primary goal"},
+ {k:"exercise25",title:"Exercise 25 min",desc:"jumping / workout / walk"},
+];
+
+const RULE_BANK={
+ "sleep_late":"If 11:45pm → phone off + charge outside + lights out.",
+ "shorts":"If you open feeds → close + 10 push-ups + start 5-min timer for the next task.",
+ "junk":"If sugar craving after dinner → water + brush teeth + 5-min walk.",
+ "p&m":"If urge hits → leave room + cold water + 10-min walk, then 10 mins work.",
+ "fight":"If conflict → 15-min cooldown + write 3 lines (control/next action/boundary).",
+ "jealousy":"If jealousy → write 'my proof today is…' then 20 mins proof-work now.",
+ "too_many_yes":"If new request → park in later list; only accept if it moves primary goal today.",
+ "shallow":"If rushing → set 60-min timer + define 1 output artifact.",
+};
+
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),900);}
+
+function load(){
+  try{const raw=localStorage.getItem(STORE);return raw?JSON.parse(raw):{days:{},weeks:[],best:0};}
+  catch{ return {days:{},weeks:[],best:0}; }
+}
+function save(st){localStorage.setItem(STORE,JSON.stringify(st));render();toast("Saved");}
+
+function ensureDay(st, date){
+  if(!st.days[date]) st.days[date]={date,win:null,keystones:{},top3:{top1:"",top2:"",top3:""},triggers:[],note:"",threeP:{pr:"",pu:"",pi:""}};
+  return st.days[date];
+}
+
+function streakNow(st){
+  let s=0;
+  let d=new Date(todayKey());
+  while(true){
+    const k=d.toISOString().slice(0,10);
+    const e=st.days[k];
+    if(e && e.win===true) s++; else break;
+    d.setDate(d.getDate()-1);
+  }
+  return s;
+}
+function bestStreak(st){
+  const keys=Object.keys(st.days).sort();
+  let best=0,cur=0;
+  for(const k of keys){
+    const e=st.days[k];
+    if(e && e.win===true){cur++;best=Math.max(best,cur);} else cur=0;
+  }
+  return best;
+}
+
+function esc(x){return (x||"").replace(/[&<>"']/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[s]));}
+
+function tagEl(tr, selected, cb){
+  const el=document.createElement("span");
+  el.className="tag "+(tr.kind||"")+(selected?" sel":"");
+  el.textContent=tr.t;
+  el.onclick=cb;
+  return el;
+}
+
+function renderTabs(){
+  $$(".tab").forEach(t=>t.classList.remove("active"));
+  const active=document.body.dataset.tab||"today";
+  $(`.tab[data-tab="${active}"]`).classList.add("active");
+  ["today","weekly","insights","data"].forEach(id=>{
+    $("#"+id).classList.toggle("hidden", id!==active);
+  });
+}
+
+function renderKeystones(st){
+  const d=ensureDay(st,todayKey());
+  const box=$("#keystones"); box.innerHTML="";
+  KEYSTONES.forEach(k=>{
+    const line=document.createElement("div"); line.className="check";
+    const left=document.createElement("div");
+    left.innerHTML=`<div class="t">${k.title}</div><div class="d">${k.desc}</div>`;
+    const tog=document.createElement("div"); tog.className="toggle"+(d.keystones[k.k]?" on":"");
+    tog.onclick=()=>{d.keystones[k.k]=!d.keystones[k.k]; save(st);};
+    line.appendChild(left); line.appendChild(tog); box.appendChild(line);
+  });
+}
+
+function renderTriggers(st){
+  const d=ensureDay(st,todayKey());
+  const box=$("#triggers"); box.innerHTML="";
+  TRIGS.filter(x=>x.kind!=="good").forEach(tr=>{
+    const selected=d.triggers.includes(tr.k);
+    box.appendChild(tagEl(tr, selected, ()=>{
+      if(selected) d.triggers=d.triggers.filter(x=>x!==tr.k);
+      else d.triggers.push(tr.k);
+      save(st);
+    }));
+  });
+}
+
+function stats7(st){
+  const t=new Date(todayKey());
+  let w=0,l=0; const tc={};
+  for(let i=0;i<7;i++){
+    const dt=new Date(t); dt.setDate(dt.getDate()-i);
+    const k=dt.toISOString().slice(0,10);
+    const e=st.days[k]; if(!e) continue;
+    if(e.win===true) w++; if(e.win===false) l++;
+    (e.triggers||[]).forEach(x=>tc[x]=(tc[x]||0)+1);
+  }
+  $("#w7").textContent=w; $("#l7").textContent=l;
+  const top=Object.entries(tc).sort((a,b)=>b[1]-a[1])[0];
+  $("#topTrig").textContent=top?(TRIGS.find(x=>x.k===top[0])?.t||top[0]):"—";
+}
+
+function renderWeekFormTriggers(){
+  const box=$("#wtrigs"); box.innerHTML="";
+  TRIGS.forEach(tr=>{
+    const el=tagEl(tr,false,()=>{el.classList.toggle("sel");});
+    el.dataset.k=tr.k;
+    box.appendChild(el);
+  });
+}
+
+function renderWeekList(st){
+  const list=$("#weekList"); const view=$("#weekView");
+  list.innerHTML=""; view.classList.add("hidden"); view.innerHTML="";
+  if(!st.weeks.length){ list.innerHTML=`<div class="muted">No weekly reflections yet.</div>`; return; }
+  st.weeks.slice().sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||"")).forEach(w=>{
+    const item=document.createElement("div"); item.className="check"; item.style.cursor="pointer";
+    item.innerHTML=`<div><div class="t">${esc(w.label||"Week")}</div><div class="d">score: ${esc(String(w.score??"—"))} • triggers: ${(w.triggers||[]).length}</div></div><div class="pill mono">${(w.createdAt||"").slice(0,10)}</div>`;
+    item.onclick=()=>showWeek(st,w.id);
+    list.appendChild(item);
+  });
+}
+
+function showWeek(st,id){
+  const w=st.weeks.find(x=>x.id===id); if(!w) return;
+  const view=$("#weekView"); view.classList.remove("hidden");
+  const trig=(w.triggers||[]).map(k=>TRIGS.find(x=>x.k===k)?.t||k).map(t=>`<span class="tag">${esc(t)}</span>`).join("") || `<span class="muted">—</span>`;
+  view.innerHTML=`
+    <div class="card" style="background:rgba(11,15,20,.28);border-radius:18px">
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <div style="font-weight:900;font-size:16px">${esc(w.label||"Week")}</div>
+          <div class="muted">Score: <b>${esc(String(w.score??"—"))}</b> • <span class="mono">${esc((w.createdAt||"").slice(0,19).replace("T"," "))}</span></div>
+        </div>
+        <div class="row">
+          <button class="btn" id="loadWeek">Load</button>
+          <button class="btn bad" id="delWeek">Delete</button>
+        </div>
+      </div>
+      <div class="div"></div>
+      <div><b>Wins</b><div class="muted" style="white-space:pre-wrap">${esc(w.wins||"")}</div></div>
+      <div style="height:10px"></div>
+      <div><b>Failures</b><div class="muted" style="white-space:pre-wrap">${esc(w.fails||"")}</div></div>
+      <div style="height:10px"></div>
+      <div><b>Triggers</b><div style="margin-top:6px">${trig}</div></div>
+      <div style="height:10px"></div>
+      <div><b>Root equation</b><div class="muted" style="white-space:pre-wrap">${esc(w.root||"")}</div></div>
+      <div style="height:10px"></div>
+      <div><b>Counter-rules</b><div class="muted" style="white-space:pre-wrap">${esc(w.rules||"")}</div></div>
+      <div style="height:10px"></div>
+      <div><b>Top 5 goals</b><div class="muted" style="white-space:pre-wrap">${esc(w.goals||"")}</div></div>
+    </div>`;
+  $("#delWeek").onclick=()=>{ if(confirm("Delete this week?")){ st.weeks=st.weeks.filter(x=>x.id!==id); save(st);} };
+  $("#loadWeek").onclick=()=>{
+    $("#wl").value=w.label||""; $("#ws").value=w.score??""; $("#ww").value=w.wins||""; $("#wf").value=w.fails||"";
+    $("#wroot").value=w.root||""; $("#wrules").value=w.rules||""; $("#wgoals").value=w.goals||"";
+    $$("#wtrigs .tag").forEach(el=>{ const k=el.dataset.k; el.classList.toggle("sel",(w.triggers||[]).includes(k)); });
+    $("#saveWeek").dataset.editId=w.id;
+    toast("Loaded into editor");
+  };
+}
+
+function renderMap30(st){
+  const box=$("#map30"); box.innerHTML="";
+  const today=new Date(todayKey());
+  const g=document.createElement("div");
+  g.style.display="grid"; g.style.gridTemplateColumns="repeat(10,1fr)"; g.style.gap="6px";
+  for(let i=29;i>=0;i--){
+    const dt=new Date(today); dt.setDate(dt.getDate()-i);
+    const k=dt.toISOString().slice(0,10);
+    const e=st.days[k];
+    const c=document.createElement("div");
+    c.style.borderRadius="10px"; c.style.border="1px solid rgba(30,42,61,.95)";
+    c.style.height="34px"; c.style.display="grid"; c.style.placeItems="center"; c.style.fontSize="12px";
+    c.textContent=String(dt.getDate()).padStart(2,"0");
+    c.style.background = e?(e.win===true?"rgba(45,212,191,.18)":e.win===false?"rgba(251,113,133,.16)":"rgba(11,15,20,.25)"):"rgba(11,15,20,.25)";
+    c.title=k+(e?.note?(" — "+e.note):"");
+    g.appendChild(c);
+  }
+  box.appendChild(g);
+}
+
+function renderFreq(st){
+  const counts={}; const t=new Date(todayKey()); let entries=0;
+  for(let i=0;i<90;i++){
+    const dt=new Date(t); dt.setDate(dt.getDate()-i);
+    const k=dt.toISOString().slice(0,10); const e=st.days[k];
+    if(!e) continue; entries++;
+    (e.triggers||[]).forEach(x=>counts[x]=(counts[x]||0)+1);
+    if(entries>=30) break;
+  }
+  const ordered=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  $("#freq").innerHTML = ordered.length
+    ? ordered.map(([k,v])=>{ const tr=TRIGS.find(x=>x.k===k); return `<span class="tag ${(tr?.kind||"")}">${esc(tr?.t||k)} • ${v}</span>`;}).join("")
+    : `<div class="muted">No trigger data yet.</div>`;
+}
+
+function renderRules(st){
+  const counts={}; const t=new Date(todayKey()); let seen=0;
+  for(let i=0;i<120;i++){
+    const dt=new Date(t); dt.setDate(dt.getDate()-i);
+    const k=dt.toISOString().slice(0,10); const e=st.days[k];
+    if(!e) continue; seen++;
+    if(e.win===false) (e.triggers||[]).forEach(x=>counts[x]=(counts[x]||0)+1);
+    if(seen>=30) break;
+  }
+  const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  $("#rules").innerHTML = top.length
+    ? top.map(([k,v])=>`<div class="check"><div><div class="t">${esc(TRIGS.find(x=>x.k===k)?.t||k)} (loss-days: ${v})</div><div class="d">${esc(RULE_BANK[k]||"If trigger shows up → apply a pre-decided guardrail.")}</div></div><span class="pill">IF–THEN</span></div>`).join("")
+    : `<div class="muted">Log a few loss-days and this will generate rules.</div>`;
+}
+
+function renderRaw(st){ $("#raw").textContent = JSON.stringify(st,null,2); }
+
+function render(){
+  const st=load(); const d=ensureDay(st,todayKey());
+  renderTabs();
+  $("#todayDate").textContent=todayKey();
+  $("#streakNow").textContent=String(streakNow(st));
+  const best=bestStreak(st); st.best=best; $("#streakBest").textContent=String(best);
+  $("#todayState").textContent = d.win===true?"WIN":d.win===false?"LOSS":"—";
+  $("#todayState").style.color = d.win===true?"var(--good)":d.win===false?"var(--bad)":"var(--text)";
+
+  renderKeystones(st);
+  renderTriggers(st);
+
+  $("#top1").value=d.top3.top1||""; $("#top2").value=d.top3.top2||""; $("#top3").value=d.top3.top3||"";
+  $("#note").value=d.note||"";
+  $("#pr").value=d.threeP.pr||""; $("#pu").value=d.threeP.pu||""; $("#pi").value=d.threeP.pi||"";
+
+  stats7(st);
+  renderWeekFormTriggers();
+  renderWeekList(st);
+  renderMap30(st);
+  renderFreq(st);
+  renderRules(st);
+  renderRaw(st);
+
+  localStorage.setItem(STORE, JSON.stringify(st));
+}
+
+$$(".tab").forEach(el=>el.onclick=()=>{document.body.dataset.tab=el.dataset.tab;render();});
+
+const st0=load(); ensureDay(st0,todayKey()); localStorage.setItem(STORE,JSON.stringify(st0));
+
+$("#winBtn").onclick=()=>{const st=load();const d=ensureDay(st,todayKey());d.win=true;d.keystones.deepwork1=true;save(st);};
+$("#loseBtn").onclick=()=>{const st=load();const d=ensureDay(st,todayKey());d.win=false;save(st);};
+$("#undoBtn").onclick=()=>{const st=load();const d=ensureDay(st,todayKey());d.win=null;save(st);};
+
+$("#saveTop3").onclick=()=>{const st=load();const d=ensureDay(st,todayKey());d.top3={top1:$("#top1").value.trim(),top2:$("#top2").value.trim(),top3:$("#top3").value.trim()};save(st);};
+$("#saveNote").onclick=()=>{const st=load();const d=ensureDay(st,todayKey());d.note=$("#note").value.trim();save(st);};
+$("#save3p").onclick=()=>{const st=load();const d=ensureDay(st,todayKey());d.threeP={pr:$("#pr").value.trim(),pu:$("#pu").value.trim(),pi:$("#pi").value.trim()};save(st);};
+
+$("#saveWeek").onclick=()=>{
+  const st=load();
+  const label=$("#wl").value.trim();
+  const score=Number($("#ws").value);
+  const wins=$("#ww").value.trim();
+  const fails=$("#wf").value.trim();
+  const root=$("#wroot").value.trim();
+  const rules=$("#wrules").value.trim();
+  const goals=$("#wgoals").value.trim();
+  const triggers=$$("#wtrigs .tag.sel").map(el=>el.dataset.k);
+  const editId=$("#saveWeek").dataset.editId;
+
+  if(editId){
+    const w=st.weeks.find(x=>x.id===editId);
+    if(w){w.label=label;w.score=Number.isFinite(score)?score:null;w.wins=wins;w.fails=fails;w.root=root;w.rules=rules;w.goals=goals;w.triggers=triggers;}
+    delete $("#saveWeek").dataset.editId;
+    save(st); toast("Week updated"); return;
+  }
+  const id=(crypto.randomUUID?crypto.randomUUID():String(Date.now()));
+  st.weeks.push({id,label,score:Number.isFinite(score)?score:null,wins,fails,root,rules,goals,triggers,createdAt:new Date().toISOString()});
+  $("#wl").value="";$("#ws").value="";$("#ww").value="";$("#wf").value="";$("#wroot").value="";$("#wrules").value="";$("#wgoals").value="";
+  save(st);
+};
+
+$("#export").onclick=()=>{
+  const data=JSON.stringify(load(),null,2);
+  const blob=new Blob([data],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="streakforge-backup.json";
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+};
+
+$("#import").onchange=async(e)=>{
+  const f=e.target.files?.[0]; if(!f) return;
+  const txt=await f.text();
+  try{localStorage.setItem(STORE, txt); toast("Imported"); render();}
+  catch{alert("Invalid JSON");}
+};
+
+$("#reset").onclick=()=>{ if(confirm("Reset ALL data?")){ localStorage.removeItem(STORE); location.reload(); } };
+
+if("serviceWorker" in navigator){ window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js").catch(()=>{})); }
+
+render();
+</script>
+</body>
+</html>
